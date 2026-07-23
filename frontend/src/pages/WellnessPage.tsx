@@ -11,19 +11,18 @@ import {
 } from "@/services/offlineStorage";
 import { WellnessApiError, getHistory, getToday, upsertToday } from "@/services/wellnessApi";
 import BrandMark from "@/components/BrandMark";
-import HabitMedia from "@/components/HabitMedia";
-import RatingScale from "@/components/RatingScale";
+import HabitSummary from "@/components/HabitSummary";
 import SyncStatus from "@/components/SyncStatus";
-import WellnessProgressChart from "@/components/WellnessProgressChart";
+import WellnessHistorySection from "@/components/WellnessHistorySection";
 import WellnessModal from "@/components/WellnessModal";
 import meditarImage from "@/assets/meditar.png";
+import { formatWellnessUpdatedAt } from "@/utils/wellnessDate";
 import { getStatusCopy, type WellnessSyncState } from "@/utils/wellnessCopy";
 import type {
   HabitKey,
   WellnessEntry,
   WellnessEntryUpsert,
   WellnessHabits,
-  WellnessHistoryResponse,
 } from "@/types/wellness";
 
 const HABITS: Array<{ key: HabitKey; label: string }> = [
@@ -61,81 +60,6 @@ function createInitialForm(date: string, timezone: string): WellnessEntryUpsert 
   };
 }
 
-function formatDateLabel(value: string): string {
-  const parts = new Intl.DateTimeFormat("es-CO", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).formatToParts(new Date(`${value}T00:00:00`));
-
-  const day = parts.find((part) => part.type === "day")?.value ?? "";
-  const month = parts.find((part) => part.type === "month")?.value ?? "";
-  const year = parts.find((part) => part.type === "year")?.value ?? "";
-
-  return `${day} de ${month}, ${year}`;
-}
-
-function formatUpdatedAt(value: string, timeZone: string): string {
-  return new Intl.DateTimeFormat("es-CO", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone,
-  }).format(new Date(value));
-}
-
-function HabitSummary({ entry }: { entry: WellnessEntry }) {
-  const habits: Array<{ key: HabitKey; label: string; checked: boolean }> = [
-    { key: "exercise", label: "Ejercicio", checked: entry.habits.exercise },
-    { key: "hydration", label: "Hidratación", checked: entry.habits.hydration },
-    { key: "sleep", label: "Sueño", checked: entry.habits.sleep },
-    { key: "nutrition", label: "Alimentación", checked: entry.habits.nutrition },
-  ];
-
-  return (
-    <div className="habit-summary" aria-label="Hábitos">
-      {habits.map((habit) => (
-        <span
-          key={habit.key}
-          className={`habit-summary__chip${habit.checked ? " is-active" : ""}`}
-        >
-          <HabitMedia habit={habit.key} alt="" className="habit-summary__media" />
-          <span>{habit.label}</span>
-        </span>
-      ))}
-    </div>
-  );
-}
-
-function HistoryEntryCard({ entry }: { entry: WellnessEntry }) {
-  return (
-    <article className="history-card">
-      <div className="history-card__header">
-        <strong>{formatDateLabel(entry.date)}</strong>
-      </div>
-
-      <div className="history-card__row">
-        <span className="summary-score__label">Energía física</span>
-        <RatingScale value={entry.physical_energy} label="Energía física" variant="energy" />
-      </div>
-
-      <div className="history-card__row">
-        <span className="summary-score__label">Estado emocional</span>
-        <RatingScale value={entry.emotional_state} label="Estado emocional" variant="emotion" />
-      </div>
-
-      <div className="history-card__row">
-        <span className="summary-score__label">Hábitos</span>
-        <HabitSummary entry={entry} />
-      </div>
-
-      <div className="history-card__row">
-        <span className="summary-score__label">Notas</span>
-        <p className="history-card__notes">{entry.notes ?? "Sin notas"}</p>
-      </div>
-    </article>
-  );
-}
-
 function ScoreSummary({
   label,
   value,
@@ -154,81 +78,6 @@ function ScoreSummary({
         <span className="rating-scale__number">{value ?? "—"}</span>
       </span>
     </div>
-  );
-}
-
-function HistoryProgressCard({
-  history,
-  timezone,
-}: {
-  history: WellnessEntry[];
-  timezone: string;
-}) {
-  if (history.length < 3) {
-    return (
-      <section className="history-panel history-panel--progress">
-        <p className="eyebrow">Tu progreso</p>
-        <h3 className="history-panel__title">Gráfica de bienestar</h3>
-        <div className="progress-empty" role="status" aria-live="polite">
-          <p className="progress-empty__title">Aún no hay suficientes registros para mostrar una tendencia.</p>
-          <p className="progress-empty__text">
-            Completa tu bienestar durante algunos días y aquí podrás visualizar tu evolución.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="history-panel history-panel--progress">
-      <p className="eyebrow">Tu progreso</p>
-      <h3 className="history-panel__title">Gráfica de bienestar</h3>
-      <WellnessProgressChart entries={history} timezone={timezone} />
-    </section>
-  );
-}
-
-function HistoryTableCard({ history }: { history: WellnessEntry[] }) {
-  return (
-    <section className="history-panel history-panel--table">
-      <p className="eyebrow">Historial detallado</p>
-      <h3 className="history-panel__title">Últimos 7 días</h3>
-
-      <table className="history-table">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Energía física</th>
-            <th>Estado emocional</th>
-            <th>Hábitos</th>
-            <th>Notas</th>
-          </tr>
-        </thead>
-        <tbody>
-          {history.map((entry) => (
-            <tr key={entry.id}>
-              <td>{formatDateLabel(entry.date)}</td>
-              <td>
-                <RatingScale value={entry.physical_energy} label="Energía física" variant="energy" />
-              </td>
-              <td>
-                <RatingScale value={entry.emotional_state} label="Estado emocional" variant="emotion" />
-              </td>
-              <td>
-                <HabitSummary entry={entry} />
-              </td>
-              <td className="history-table__notes">{entry.notes ?? "Sin notas"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="history-cards">
-        {history.map((entry) => (
-          <HistoryEntryCard key={entry.id} entry={entry} />
-        ))}
-      </div>
-    </section>
   );
 }
 
@@ -307,7 +156,7 @@ export default function WellnessPage() {
     async function loadHistoryEntries(): Promise<void> {
       try {
         setLoadingHistory(true);
-        const response: WellnessHistoryResponse = await getHistory({
+        const response = await getHistory({
           days: 7,
           timezone,
         });
@@ -574,7 +423,7 @@ export default function WellnessPage() {
                   </div>
                   <span>Notas: {currentEntry.notes ? currentEntry.notes : "Sin notas"}</span>
                   <span className="summary-note summary-note--updated">
-                    Actualizado: {formatUpdatedAt(currentEntry.updated_at, currentEntry.timezone)}
+                    Actualizado: {formatWellnessUpdatedAt(currentEntry.updated_at, currentEntry.timezone)}
                   </span>
                 </>
               ) : (
@@ -598,12 +447,7 @@ export default function WellnessPage() {
 
             {loadingHistory ? <p>Cargando historial...</p> : null}
 
-            {history.length > 0 ? (
-              <div className="history-panels">
-                <HistoryProgressCard history={history} timezone={timezone} />
-                <HistoryTableCard history={history} />
-              </div>
-            ) : null}
+            {history.length > 0 ? <WellnessHistorySection history={history} timezone={timezone} /> : null}
           </div>
         </section>
       </div>

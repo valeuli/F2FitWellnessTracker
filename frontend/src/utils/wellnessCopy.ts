@@ -21,7 +21,7 @@ export function getStatusCopy(
   if (syncState === "pendiente") {
     return {
       title: "Pendiente de sincronización ⏳",
-      message: "Se guardó localmente y se enviará cuando vuelva la conexión.",
+      message: "Se enviará cuando vuelva la conexión.",
     };
   }
 
