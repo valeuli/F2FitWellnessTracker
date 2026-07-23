@@ -28,9 +28,7 @@ export function getStatusCopy(
   if (syncState === "sincronizado") {
     return {
       title: "Sincronizado ✨",
-      message: currentEntry
-        ? "Tu bienestar de hoy ya está guardado."
-        : "Tus cambios ya están al día.",
+      message: "",
     };
   }
 
