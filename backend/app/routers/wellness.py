@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Header, status
 from sqlalchemy.orm import Session
@@ -23,7 +24,7 @@ TEST_USER_ID = "test_user_123"
 
 
 def get_service(
-    db: Session = Depends(get_db),
+    db: Annotated[Session, Depends(get_db)],
 ) -> WellnessService:
     repository = WellnessRepository(db)
     return WellnessService(repository)
@@ -34,9 +35,9 @@ def get_service(
     response_model=WellnessEntryResponse,
 )
 def get_today_entry(
-    local_date: date = Query(alias="date"),
-    service: WellnessService = Depends(get_service),
-):
+    local_date: Annotated[date, Query(alias="date")],
+    service: Annotated[WellnessService, Depends(get_service)],
+) -> WellnessEntryResponse:
     entry = service.get_entry(
         user_id=TEST_USER_ID,
         local_date=local_date,
@@ -57,9 +58,12 @@ def get_today_entry(
 )
 def upsert_today_entry(
     payload: WellnessEntryUpsert,
-    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
-    service: WellnessService = Depends(get_service),
-):
+    idempotency_key: Annotated[
+        str | None,
+        Header(default=None, alias="Idempotency-Key"),
+    ],
+    service: Annotated[WellnessService, Depends(get_service)],
+) -> WellnessEntryResponse:
     if not idempotency_key:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -80,11 +84,14 @@ def upsert_today_entry(
     response_model=WellnessHistoryResponse,
 )
 def get_history(
-    end_date: date | None = Query(default=None, alias="date"),
-    days: int = Query(default=7, ge=1, le=30),
-    timezone_name: str | None = Query(default=None, alias="timezone"),
-    service: WellnessService = Depends(get_service),
-):
+    end_date: Annotated[date | None, Query(default=None, alias="date")],
+    days: Annotated[int, Query(default=7, ge=1, le=30)],
+    timezone_name: Annotated[
+        str | None,
+        Query(default=None, alias="timezone"),
+    ],
+    service: Annotated[WellnessService, Depends(get_service)],
+) -> WellnessHistoryResponse:
     entries = service.get_history(
         user_id=TEST_USER_ID,
         days=days,
