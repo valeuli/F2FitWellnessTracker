@@ -7,6 +7,7 @@ Backend:
 - SQLAlchemy con SQLite fue suficiente para persistencia local sin requerir infraestructura externa.
 - La tabla de bienestar guarda `date` y `timezone` para resolver el día local de forma consistente.
 - Se usa `Idempotency-Key` en el `PUT` para evitar duplicados cuando la red reintenta envíos.
+- Reutilizar la misma `Idempotency-Key` devuelve el registro previo tal como quedó guardado; para probar un cambio real se debe usar una key nueva.
 - La lógica se separó en router, servicio, repositorio, schemas y mapper para mantener responsabilidades claras.
 
 Frontend:

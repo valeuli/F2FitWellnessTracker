@@ -62,13 +62,6 @@ source .venv/bin/activate
 pytest
 ```
 
-### Frontend
-
-```bash
-cd frontend
-npm run build
-```
-
 ## API
 
 FastAPI genera documentación interactiva automáticamente:
@@ -107,6 +100,8 @@ FastAPI genera documentación interactiva automáticamente:
 - El backend crea la base SQLite automáticamente al iniciar.
 - El frontend puede usar `VITE_API_BASE_URL` para apuntar a otro backend.
 - El flujo de guardado usa `Idempotency-Key` para evitar duplicados.
+- Si reutilizas la misma `Idempotency-Key`, el backend devuelve el registro ya guardado sin aplicar cambios nuevos.
+- Para probar cambios de timezone en un `PUT`, usa una `Idempotency-Key` nueva.
 
 ## Decisiones de arquitectura
 

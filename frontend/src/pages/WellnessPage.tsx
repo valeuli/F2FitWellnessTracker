@@ -89,7 +89,7 @@ function HeroIllustration() {
 
 export default function WellnessPage() {
   const today = useMemo(() => getTodayDate(), []);
-  const timezone = useMemo(() => getTimezone(), []);
+  const [timezone, setTimezone] = useState<string>(() => getTimezone());
 
   const [form, setForm] = useState<WellnessEntryUpsert>(() => {
     return loadDraft() ?? createInitialForm(today, timezone);
@@ -107,6 +107,21 @@ export default function WellnessPage() {
   useEffect(() => {
     saveDraft(form);
   }, [form]);
+
+  useEffect(() => {
+    const refreshTimezone = () => {
+      setTimezone(getTimezone());
+    };
+
+    refreshTimezone();
+    window.addEventListener("focus", refreshTimezone);
+    window.addEventListener("visibilitychange", refreshTimezone);
+
+    return () => {
+      window.removeEventListener("focus", refreshTimezone);
+      window.removeEventListener("visibilitychange", refreshTimezone);
+    };
+  }, []);
 
   useEffect(() => {
     if (form.timezone === timezone) {
