@@ -105,6 +105,36 @@ function HabitSummary({ entry }: { entry: WellnessEntry }) {
   );
 }
 
+function HistoryEntryCard({ entry }: { entry: WellnessEntry }) {
+  return (
+    <article className="history-card">
+      <div className="history-card__header">
+        <strong>{formatDateLabel(entry.date)}</strong>
+      </div>
+
+      <div className="history-card__row">
+        <span className="summary-score__label">Energía física</span>
+        <RatingScale value={entry.physical_energy} label="Energía física" variant="energy" />
+      </div>
+
+      <div className="history-card__row">
+        <span className="summary-score__label">Estado emocional</span>
+        <RatingScale value={entry.emotional_state} label="Estado emocional" variant="emotion" />
+      </div>
+
+      <div className="history-card__row">
+        <span className="summary-score__label">Hábitos</span>
+        <HabitSummary entry={entry} />
+      </div>
+
+      <div className="history-card__row">
+        <span className="summary-score__label">Notas</span>
+        <p className="history-card__notes">{entry.notes ?? "Sin notas"}</p>
+      </div>
+    </article>
+  );
+}
+
 function ScoreSummary({
   label,
   value,
@@ -493,17 +523,18 @@ export default function WellnessPage() {
             {loadingHistory ? <p>Cargando historial...</p> : null}
 
             {history.length > 0 ? (
-              <table className="history-table">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Energía física</th>
-                    <th>Estado emocional</th>
-                    <th>Hábitos</th>
-                    <th>Notas</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <>
+                <table className="history-table">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Energía física</th>
+                      <th>Estado emocional</th>
+                      <th>Hábitos</th>
+                      <th>Notas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {history.map((entry) => (
                       <tr key={entry.id}>
                         <td>{formatDateLabel(entry.date)}</td>
@@ -527,8 +558,15 @@ export default function WellnessPage() {
                         <td>{entry.notes ?? "Sin notas"}</td>
                       </tr>
                     ))}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+
+                <div className="history-cards">
+                  {history.map((entry) => (
+                    <HistoryEntryCard key={entry.id} entry={entry} />
+                  ))}
+                </div>
+              </>
             ) : (
               <p>No hay historial para mostrar todavía.</p>
             )}
