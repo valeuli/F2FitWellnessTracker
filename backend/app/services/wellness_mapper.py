@@ -1,5 +1,14 @@
+from datetime import timezone
+
 from app.models import WellnessEntry
 from app.schemas import HabitsSchema, WellnessEntryResponse
+
+
+def _to_utc_datetime(value):
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+
+    return value.astimezone(timezone.utc)
 
 
 def to_wellness_response(
@@ -14,11 +23,11 @@ def to_wellness_response(
         notes=entry.notes,
         timezone=entry.timezone,
         habits=HabitsSchema(
-            exercise=entry.exercise,
-            hydration=entry.hydration,
-            sleep=entry.sleep,
-            nutrition=entry.nutrition,
+            exercise=bool(entry.exercise),
+            hydration=bool(entry.hydration),
+            sleep=bool(entry.sleep),
+            nutrition=bool(entry.nutrition),
         ),
-        created_at=entry.created_at,
-        updated_at=entry.updated_at,
+        created_at=_to_utc_datetime(entry.created_at),
+        updated_at=_to_utc_datetime(entry.updated_at),
     )
