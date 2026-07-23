@@ -58,11 +58,8 @@ def get_today_entry(
 )
 def upsert_today_entry(
     payload: WellnessEntryUpsert,
-    idempotency_key: Annotated[
-        str | None,
-        Header(default=None, alias="Idempotency-Key"),
-    ],
     service: Annotated[WellnessService, Depends(get_service)],
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
 ) -> WellnessEntryResponse:
     if not idempotency_key:
         raise HTTPException(
@@ -84,13 +81,10 @@ def upsert_today_entry(
     response_model=WellnessHistoryResponse,
 )
 def get_history(
-    end_date: Annotated[date | None, Query(default=None, alias="date")],
-    days: Annotated[int, Query(default=7, ge=1, le=30)],
-    timezone_name: Annotated[
-        str | None,
-        Query(default=None, alias="timezone"),
-    ],
     service: Annotated[WellnessService, Depends(get_service)],
+    end_date: Annotated[date | None, Query(alias="date")] = None,
+    days: Annotated[int, Query(ge=1, le=30)] = 7,
+    timezone_name: Annotated[str | None, Query(alias="timezone")] = None,
 ) -> WellnessHistoryResponse:
     entries = service.get_history(
         user_id=TEST_USER_ID,
