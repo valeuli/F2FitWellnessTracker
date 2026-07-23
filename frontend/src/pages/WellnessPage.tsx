@@ -102,7 +102,7 @@ export default function WellnessPage() {
   const [syncState, setSyncState] = useState<WellnessSyncState>("en_reposo");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
-  const [toastMessage, setToastMessage] = useState<string>("");
+  const [saveFeedback, setSaveFeedback] = useState<string>("");
 
   useEffect(() => {
     saveDraft(form);
@@ -217,7 +217,7 @@ export default function WellnessPage() {
 
       if (result.synced > 0) {
         setSyncState("sincronizado");
-        setToastMessage("Cambios sincronizados ✓");
+        setSaveFeedback("Bienestar sincronizado correctamente.");
         const response = await getHistory({ days: 7, timezone });
         setHistory(response.entries);
       }
@@ -246,18 +246,6 @@ export default function WellnessPage() {
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
-
-  useEffect(() => {
-    if (!toastMessage) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      setToastMessage("");
-    }, 2400);
-
-    return () => window.clearTimeout(timer);
-  }, [toastMessage]);
 
   const updateScore = (field: "physical_energy" | "emotional_state", value: number) => {
     setForm((current) => ({
@@ -336,7 +324,7 @@ export default function WellnessPage() {
       clearDraft();
       setIsModalOpen(false);
       setSyncState("sincronizado");
-      setToastMessage("Guardado correctamente ✓");
+      setSaveFeedback("Bienestar guardado correctamente.");
       const response = await getHistory({ days: 7, timezone });
       setHistory(response.entries);
     } catch (error) {
@@ -348,7 +336,7 @@ export default function WellnessPage() {
 
       enqueuePendingWrite(createPendingWrite(payload, idempotencyKey));
       setSyncState("pendiente");
-      setToastMessage("Pendiente de sincronización ⏳");
+      setSaveFeedback("Sin conexión. Quedó pendiente de sincronización.");
       setIsModalOpen(false);
     }
   };
@@ -363,6 +351,18 @@ export default function WellnessPage() {
     noteLength <= 100;
   const statusMessage = message || statusCopy.message;
 
+  useEffect(() => {
+    if (!saveFeedback) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setSaveFeedback("");
+    }, 3000);
+
+    return () => window.clearTimeout(timer);
+  }, [saveFeedback]);
+
   return (
     <main className="page-shell">
       <header className="app-header">
@@ -372,8 +372,6 @@ export default function WellnessPage() {
           <p className="app-header__subtitle">Calmo, simple y rápido.</p>
         </div>
       </header>
-
-      {toastMessage ? <div className="toast">{toastMessage}</div> : null}
 
       <div className="dashboard">
         <section className="card hero-card" aria-label="Bienvenida">
@@ -421,6 +419,7 @@ export default function WellnessPage() {
                 <button className="primary-button" type="button" onClick={openModal}>
                   {currentEntry ? "Editar registro" : "Registrar bienestar"}
                 </button>
+                {saveFeedback ? <p className="summary-feedback">{saveFeedback}</p> : null}
               </div>
             </div>
 

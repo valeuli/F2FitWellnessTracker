@@ -277,17 +277,11 @@ select:focus-visible {
   align-items: center;
 }
 
-.toast {
-  position: sticky;
-  top: 12px;
-  z-index: 30;
-  margin-bottom: 16px;
-  padding: 12px 16px;
-  border-radius: 18px;
-  background: rgba(125, 211, 192, 0.18);
-  border: 1px solid rgba(125, 211, 192, 0.35);
-  box-shadow: 0 12px 24px rgba(125, 211, 192, 0.14);
-  color: var(--text);
+.summary-feedback {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .primary-button {

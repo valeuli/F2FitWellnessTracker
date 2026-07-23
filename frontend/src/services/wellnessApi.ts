@@ -5,6 +5,7 @@ import type {
 } from "../types/wellness";
 
 const DEFAULT_BASE_URL = "http://localhost:8000";
+const REQUEST_TIMEOUT_MS = 3000;
 
 function getBaseUrl(): string {
   return import.meta.env.VITE_API_BASE_URL ?? DEFAULT_BASE_URL;
@@ -21,21 +22,31 @@ export class WellnessApiError extends Error {
 }
 
 async function requestJson<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
-  const response = await fetch(input, init);
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  if (!response.ok) {
-    const detail = await response
-      .json()
-      .catch(() => ({ detail: response.statusText }));
+  try {
+    const response = await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
 
-    throw new WellnessApiError(detail.detail ?? "Request failed", response.status);
+    if (!response.ok) {
+      const detail = await response
+        .json()
+        .catch(() => ({ detail: response.statusText }));
+
+      throw new WellnessApiError(detail.detail ?? "Request failed", response.status);
+    }
+
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    return response.json() as Promise<T>;
+  } finally {
+    window.clearTimeout(timeoutId);
   }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return response.json() as Promise<T>;
 }
 
 export async function getToday(date: string): Promise<WellnessEntry> {
