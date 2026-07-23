@@ -1,5 +1,6 @@
 import { upsertToday } from "./wellnessApi";
-import type { WellnessEntryUpsert } from "../types/wellness";
+import { WellnessApiError } from "./wellnessApi";
+import type { WellnessEntryUpsert } from "@/types/wellness";
 
 const DRAFT_KEY = "f2fit_wellness_draft";
 const PENDING_WRITES_KEY = "f2fit_wellness_pending_writes";
@@ -15,6 +16,7 @@ export interface SyncResult {
   synced: number;
   failed: number;
   remaining: number;
+  validationFailed: number;
 }
 
 function isStorageAvailable(): boolean {
@@ -88,13 +90,19 @@ export async function syncPendingWrites(): Promise<SyncResult> {
   const pendingWrites = loadPendingWrites();
   let synced = 0;
   let failed = 0;
+  let validationFailed = 0;
   const remaining: PendingWellnessWrite[] = [];
 
   for (const pendingWrite of pendingWrites) {
     try {
       await upsertToday(pendingWrite.payload, pendingWrite.idempotencyKey);
       synced += 1;
-    } catch {
+    } catch (error) {
+      if (error instanceof WellnessApiError && error.status === 422) {
+        validationFailed += 1;
+        continue;
+      }
+
       failed += 1;
       remaining.push(pendingWrite);
     }
@@ -110,6 +118,7 @@ export async function syncPendingWrites(): Promise<SyncResult> {
     synced,
     failed,
     remaining: remaining.length,
+    validationFailed,
   };
 }
 

@@ -1,13 +1,24 @@
 type SyncStatusProps = {
   title: string;
   message?: string;
+  variant?: "idle" | "saving" | "pending" | "synced" | "error";
 };
 
-export default function SyncStatus({ title, message }: SyncStatusProps) {
+const ICONS = {
+  idle: "😴",
+  saving: "⏳",
+  pending: "🕒",
+  synced: "✓",
+  error: "⚠️",
+} as const;
+
+export default function SyncStatus({ title, message, variant = "idle" }: SyncStatusProps) {
   return (
-    <div>
-      <p>{title}</p>
-      {message ? <p>{message}</p> : null}
+    <div className="sync-status" aria-live="polite">
+      <p className="sync-status__title">
+        {ICONS[variant]} {title}
+      </p>
+      {message ? <p className="sync-status__message">{message}</p> : null}
     </div>
   );
 }

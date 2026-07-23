@@ -10,6 +10,16 @@ function getBaseUrl(): string {
   return import.meta.env.VITE_API_BASE_URL ?? DEFAULT_BASE_URL;
 }
 
+export class WellnessApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "WellnessApiError";
+    this.status = status;
+  }
+}
+
 async function requestJson<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
   const response = await fetch(input, init);
 
@@ -18,7 +28,7 @@ async function requestJson<T>(input: RequestInfo | URL, init?: RequestInit): Pro
       .json()
       .catch(() => ({ detail: response.statusText }));
 
-    throw new Error(detail.detail ?? "Request failed");
+    throw new WellnessApiError(detail.detail ?? "Request failed", response.status);
   }
 
   if (response.status === 204) {
