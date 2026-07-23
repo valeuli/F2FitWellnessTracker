@@ -14,6 +14,7 @@ import BrandMark from "@/components/BrandMark";
 import HabitMedia from "@/components/HabitMedia";
 import RatingScale from "@/components/RatingScale";
 import SyncStatus from "@/components/SyncStatus";
+import WellnessProgressChart from "@/components/WellnessProgressChart";
 import WellnessModal from "@/components/WellnessModal";
 import meditarImage from "@/assets/meditar.png";
 import { getStatusCopy, type WellnessSyncState } from "@/utils/wellnessCopy";
@@ -153,6 +154,75 @@ function ScoreSummary({
         <span className="rating-scale__number">{value ?? "—"}</span>
       </span>
     </div>
+  );
+}
+
+function HistoryProgressCard({
+  history,
+  timezone,
+}: {
+  history: WellnessEntry[];
+  timezone: string;
+}) {
+  if (history.length < 3) {
+    return (
+      <section className="history-panel history-panel--progress">
+        <p className="eyebrow">Tu progreso</p>
+        <h3 className="history-panel__title">Gráfica de bienestar</h3>
+        <div className="progress-empty" role="status" aria-live="polite">
+          <p className="progress-empty__title">Aún no hay suficientes registros para mostrar una tendencia.</p>
+          <p className="progress-empty__text">
+            Completa tu bienestar durante algunos días y aquí podrás visualizar tu evolución.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="history-panel history-panel--progress">
+      <p className="eyebrow">Tu progreso</p>
+      <h3 className="history-panel__title">Gráfica de bienestar</h3>
+      <WellnessProgressChart entries={history} timezone={timezone} />
+    </section>
+  );
+}
+
+function HistoryTableCard({ history }: { history: WellnessEntry[] }) {
+  return (
+    <section className="history-panel history-panel--table">
+      <p className="eyebrow">Historial detallado</p>
+      <h3 className="history-panel__title">Últimos 7 días</h3>
+
+      <table className="history-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Energía física</th>
+            <th>Estado emocional</th>
+            <th>Hábitos</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody>
+          {history.map((entry) => (
+            <tr key={entry.id}>
+              <td>{formatDateLabel(entry.date)}</td>
+              <td>
+                <RatingScale value={entry.physical_energy} label="Energía física" variant="energy" />
+              </td>
+              <td>
+                <RatingScale value={entry.emotional_state} label="Estado emocional" variant="emotion" />
+              </td>
+              <td>
+                <HabitSummary entry={entry} />
+              </td>
+              <td className="history-table__notes">{entry.notes ?? "Sin notas"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
   );
 }
 
@@ -523,53 +593,11 @@ export default function WellnessPage() {
             {loadingHistory ? <p>Cargando historial...</p> : null}
 
             {history.length > 0 ? (
-              <>
-                <table className="history-table">
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Energía física</th>
-                      <th>Estado emocional</th>
-                      <th>Hábitos</th>
-                      <th>Notas</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {history.map((entry) => (
-                      <tr key={entry.id}>
-                        <td>{formatDateLabel(entry.date)}</td>
-                        <td>
-                          <RatingScale
-                            value={entry.physical_energy}
-                            label="Energía física"
-                            variant="energy"
-                          />
-                        </td>
-                        <td>
-                          <RatingScale
-                            value={entry.emotional_state}
-                            label="Estado emocional"
-                            variant="emotion"
-                          />
-                        </td>
-                        <td>
-                          <HabitSummary entry={entry} />
-                        </td>
-                        <td>{entry.notes ?? "Sin notas"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <div className="history-cards">
-                  {history.map((entry) => (
-                    <HistoryEntryCard key={entry.id} entry={entry} />
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p>No hay historial para mostrar todavía.</p>
-            )}
+              <div className="history-panels">
+                <HistoryProgressCard history={history} timezone={timezone} />
+                <HistoryTableCard history={history} />
+              </div>
+            ) : null}
           </div>
         </section>
       </div>
