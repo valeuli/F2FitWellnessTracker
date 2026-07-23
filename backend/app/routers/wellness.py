@@ -57,13 +57,17 @@ def get_today_entry(
 )
 def upsert_today_entry(
     payload: WellnessEntryUpsert,
-    idempotency_key: str = Header(alias="Idempotency-Key", min_length=1),
-    local_date: date = Query(alias="date"),
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
     service: WellnessService = Depends(get_service),
 ):
+    if not idempotency_key:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Idempotency-Key is required",
+        )
+
     entry = service.upsert_entry(
         user_id=TEST_USER_ID,
-        local_date=local_date,
         idempotency_key=idempotency_key,
         payload=payload,
     )
@@ -76,14 +80,16 @@ def upsert_today_entry(
     response_model=WellnessHistoryResponse,
 )
 def get_history(
-    end_date: date = Query(alias="date"),
+    end_date: date | None = Query(default=None, alias="date"),
     days: int = Query(default=7, ge=1, le=30),
+    timezone_name: str | None = Query(default=None, alias="timezone"),
     service: WellnessService = Depends(get_service),
 ):
     entries = service.get_history(
         user_id=TEST_USER_ID,
         days=days,
         end_date=end_date,
+        timezone_name=timezone_name,
     )
 
     return WellnessHistoryResponse(

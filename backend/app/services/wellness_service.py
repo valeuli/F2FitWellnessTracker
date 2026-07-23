@@ -1,4 +1,5 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from app.models import WellnessEntry
 from app.repositories.wellness_repository import WellnessRepository
@@ -12,10 +13,11 @@ class WellnessService:
     def upsert_entry(
         self,
         user_id: str,
-        local_date: date,
         idempotency_key: str,
         payload: WellnessEntryUpsert,
     ) -> WellnessEntry:
+        local_date = payload.date
+
         existing_by_key = self.repository.get_by_idempotency_key(
             user_id=user_id,
             idempotency_key=idempotency_key,
@@ -68,11 +70,23 @@ class WellnessService:
         self,
         user_id: str,
         days: int,
-        end_date: date,
+        end_date: date | None,
+        timezone_name: str | None,
     ) -> list[WellnessEntry]:
+        if end_date is None:
+            end_date = self._today_for_timezone(timezone_name)
+
         start_date = end_date - timedelta(days=days - 1)
 
         return self.repository.get_history(
             user_id=user_id,
             start_date=start_date,
         )
+
+    def _today_for_timezone(self, timezone_name: str | None) -> date:
+        if timezone_name:
+            return datetime.now(timezone.utc).astimezone(
+                ZoneInfo(timezone_name)
+            ).date()
+
+        return date.today()

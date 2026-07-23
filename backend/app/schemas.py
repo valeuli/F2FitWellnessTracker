@@ -12,6 +12,8 @@ class HabitsSchema(BaseModel):
 
 
 class WellnessEntryUpsert(BaseModel):
+    date: date
+
     physical_energy: int | None = Field(
         default=None,
         ge=1,

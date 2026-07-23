@@ -30,6 +30,7 @@ class WellnessServiceTests(TestCase):
         service = WellnessService(repository)
 
         payload = WellnessEntryUpsert(
+            date=date(2026, 5, 1),
             physical_energy=4,
             habits=HabitsSchema(exercise=True),
             timezone="America/Bogota",
@@ -37,7 +38,6 @@ class WellnessServiceTests(TestCase):
 
         result = service.upsert_entry(
             user_id="test_user_123",
-            local_date=date(2026, 5, 1),
             idempotency_key="idem-123",
             payload=payload,
         )
@@ -56,6 +56,7 @@ class WellnessServiceTests(TestCase):
         service = WellnessService(repository)
 
         payload = WellnessEntryUpsert(
+            date=date(2026, 5, 1),
             physical_energy=4,
             emotional_state=3,
             notes="Día muy productivo",
@@ -70,7 +71,6 @@ class WellnessServiceTests(TestCase):
 
         result = service.upsert_entry(
             user_id="test_user_123",
-            local_date=date(2026, 5, 1),
             idempotency_key="idem-new",
             payload=payload,
         )
@@ -91,7 +91,10 @@ class WellnessServiceTests(TestCase):
 
     def test_rejects_invalid_timezone(self):
         with self.assertRaises(ValidationError) as exc_info:
-            WellnessEntryUpsert(timezone="Bogota/Invalid")
+            WellnessEntryUpsert(
+                date=date(2026, 5, 1),
+                timezone="Bogota/Invalid",
+            )
 
         self.assertIn(
             "timezone must be a valid IANA timezone",
@@ -103,6 +106,7 @@ class WellnessServiceTests(TestCase):
 
         with self.assertRaises(ValidationError):
             WellnessEntryUpsert(
+                date=date(2026, 5, 1),
                 notes=long_notes,
                 timezone="America/Bogota",
             )
