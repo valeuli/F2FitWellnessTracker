@@ -10,8 +10,12 @@ import {
   syncPendingWrites,
 } from "@/services/offlineStorage";
 import { WellnessApiError, getHistory, getToday, upsertToday } from "@/services/wellnessApi";
+import BrandMark from "@/components/BrandMark";
+import HabitMedia from "@/components/HabitMedia";
+import RatingScale from "@/components/RatingScale";
 import SyncStatus from "@/components/SyncStatus";
 import WellnessModal from "@/components/WellnessModal";
+import meditarImage from "@/assets/meditar.png";
 import { getStatusCopy, type WellnessSyncState } from "@/utils/wellnessCopy";
 import type {
   HabitKey,
@@ -57,75 +61,74 @@ function createInitialForm(date: string, timezone: string): WellnessEntryUpsert 
 }
 
 function formatDateLabel(value: string): string {
-  return new Intl.DateTimeFormat("es-CO", {
-    weekday: "short",
+  const parts = new Intl.DateTimeFormat("es-CO", {
     day: "2-digit",
     month: "short",
-  }).format(new Date(`${value}T00:00:00`));
+    year: "numeric",
+  }).formatToParts(new Date(`${value}T00:00:00`));
+
+  const day = parts.find((part) => part.type === "day")?.value ?? "";
+  const month = parts.find((part) => part.type === "month")?.value ?? "";
+  const year = parts.find((part) => part.type === "year")?.value ?? "";
+
+  return `${day} de ${month}, ${year}`;
 }
 
-function formatUpdatedAt(value: string): string {
+function formatUpdatedAt(value: string, timeZone: string): string {
   return new Intl.DateTimeFormat("es-CO", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone,
   }).format(new Date(value));
 }
 
-function formatHabits(entry: WellnessEntry): string {
-  const habits = [
-    entry.habits.exercise ? "Ejercicio" : null,
-    entry.habits.hydration ? "Hidratación" : null,
-    entry.habits.sleep ? "Sueño" : null,
-    entry.habits.nutrition ? "Alimentación" : null,
-  ].filter(Boolean);
+function HabitSummary({ entry }: { entry: WellnessEntry }) {
+  const habits: Array<{ key: HabitKey; label: string; checked: boolean }> = [
+    { key: "exercise", label: "Ejercicio", checked: entry.habits.exercise },
+    { key: "hydration", label: "Hidratación", checked: entry.habits.hydration },
+    { key: "sleep", label: "Sueño", checked: entry.habits.sleep },
+    { key: "nutrition", label: "Alimentación", checked: entry.habits.nutrition },
+  ];
 
-  return habits.length > 0 ? habits.join(" · ") : "Sin hábitos marcados";
+  return (
+    <div className="habit-summary" aria-label="Hábitos">
+      {habits.map((habit) => (
+        <span
+          key={habit.key}
+          className={`habit-summary__chip${habit.checked ? " is-active" : ""}`}
+        >
+          <HabitMedia habit={habit.key} alt="" className="habit-summary__media" />
+          <span>{habit.label}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ScoreSummary({
+  label,
+  value,
+  variant,
+}: {
+  label: string;
+  value: number | null;
+  variant: "energy" | "emotion";
+}) {
+  const toneClass = variant === "energy" ? "rating-scale--energy" : "rating-scale--emotion";
+
+  return (
+    <div className={`summary-score summary-score--${variant}`}>
+      <span className="summary-score__label">{label}</span>
+      <span className={`summary-score__value ${toneClass}`} aria-hidden="true">
+        <span className="rating-scale__number">{value ?? "—"}</span>
+      </span>
+    </div>
+  );
 }
 
 function HeroIllustration() {
   return (
-    <svg viewBox="0 0 320 240" fill="none" aria-hidden="true">
-      <circle cx="160" cy="120" r="92" fill="rgba(255,255,255,0.7)" />
-      <circle cx="118" cy="82" r="36" fill="rgba(249,168,212,0.42)" />
-      <circle cx="210" cy="150" r="42" fill="rgba(125,211,192,0.46)" />
-      <ellipse cx="162" cy="150" rx="68" ry="56" fill="#FFFFFF" opacity="0.92" />
-      <path
-        d="M137 132c6-17 18-27 31-27 15 0 28 12 35 30 6 16 7 31 7 31H129s1-15 8-34Z"
-        fill="#C084FC"
-        opacity="0.22"
-      />
-      <path
-        d="M137 134c6-16 18-24 31-24 14 0 27 10 34 27 4 11 5 20 5 20H131s1-10 6-23Z"
-        fill="#F9A8D4"
-        opacity="0.42"
-      />
-      <circle cx="168" cy="110" r="20" fill="#FFE4EC" />
-      <path
-        d="M154 110c0-7 6-13 14-13s14 6 14 13"
-        stroke="#3F3D56"
-        strokeOpacity="0.45"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M138 165h90"
-        stroke="#E9D5FF"
-        strokeWidth="10"
-        strokeLinecap="round"
-      />
-      <path
-        d="M206 96c12 2 21 11 21 23 0 6-2 11-6 15"
-        stroke="#7DD3C0"
-        strokeWidth="10"
-        strokeLinecap="round"
-      />
-      <path
-        d="M99 97c-8 6-12 13-12 22 0 5 1 9 4 13"
-        stroke="#F9A8D4"
-        strokeWidth="10"
-        strokeLinecap="round"
-      />
-    </svg>
+    <img className="hero-illustration__image" src={meditarImage} alt="" aria-hidden="true" />
   );
 }
 
@@ -392,6 +395,14 @@ export default function WellnessPage() {
 
   return (
     <main className="page-shell">
+      <header className="app-header">
+        <BrandMark />
+        <div className="app-header__copy">
+          <p className="app-header__eyebrow">Registro de bienestar</p>
+          <p className="app-header__subtitle">Calmo, simple y rápido.</p>
+        </div>
+      </header>
+
       {toastMessage ? <div className="toast">{toastMessage}</div> : null}
 
       <div className="dashboard">
@@ -447,12 +458,17 @@ export default function WellnessPage() {
               <strong>Estado actual</strong>
               {currentEntry ? (
                 <>
-                  <span>Energía: {currentEntry.physical_energy ?? "—"}</span>
-                  <span>Emoción: {currentEntry.emotional_state ?? "—"}</span>
-                  <span>Hábitos: {formatHabits(currentEntry)}</span>
+                  <div className="summary-scores-row">
+                    <ScoreSummary label="Energía física" value={currentEntry.physical_energy} variant="energy" />
+                    <ScoreSummary label="Estado emocional" value={currentEntry.emotional_state} variant="emotion" />
+                  </div>
+                  <div>
+                    <span className="summary-score__label">Hábitos</span>
+                    <HabitSummary entry={currentEntry} />
+                  </div>
                   <span>Notas: {currentEntry.notes ? currentEntry.notes : "Sin notas"}</span>
-                  <span className="summary-note">
-                    Actualizado: {formatUpdatedAt(currentEntry.updated_at)}
+                  <span className="summary-note summary-note--updated">
+                    Actualizado: {formatUpdatedAt(currentEntry.updated_at, currentEntry.timezone)}
                   </span>
                 </>
               ) : (
@@ -480,23 +496,37 @@ export default function WellnessPage() {
               <table className="history-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Energy</th>
-                    <th>Emotion</th>
-                    <th>Habits</th>
-                    <th>Notes</th>
+                    <th>Fecha</th>
+                    <th>Energía física</th>
+                    <th>Estado emocional</th>
+                    <th>Hábitos</th>
+                    <th>Notas</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {history.map((entry) => (
-                    <tr key={entry.id}>
-                      <td>{formatDateLabel(entry.date)}</td>
-                      <td>{entry.physical_energy ?? "—"}</td>
-                      <td>{entry.emotional_state ?? "—"}</td>
-                      <td>{formatHabits(entry)}</td>
-                      <td>{entry.notes ?? "Sin notas"}</td>
-                    </tr>
-                  ))}
+                    {history.map((entry) => (
+                      <tr key={entry.id}>
+                        <td>{formatDateLabel(entry.date)}</td>
+                        <td>
+                          <RatingScale
+                            value={entry.physical_energy}
+                            label="Energía física"
+                            variant="energy"
+                          />
+                        </td>
+                        <td>
+                          <RatingScale
+                            value={entry.emotional_state}
+                            label="Estado emocional"
+                            variant="emotion"
+                          />
+                        </td>
+                        <td>
+                          <HabitSummary entry={entry} />
+                        </td>
+                        <td>{entry.notes ?? "Sin notas"}</td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             ) : (

@@ -1,4 +1,5 @@
 import type { HabitKey } from "../types/wellness";
+import HabitMedia from "./HabitMedia";
 
 type HabitToggleProps = {
   label: string;
@@ -14,13 +15,18 @@ export default function HabitToggle({
   onChange,
 }: HabitToggleProps) {
   return (
-    <label style={{ display: "block" }}>
+    <label className={`habit-toggle${checked ? " is-active" : ""}`}>
       <input
+        className="sr-only"
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(habit, event.target.checked)}
       />
-      {label}
+      <span className="habit-toggle__icon" aria-hidden="true">
+        <HabitMedia habit={habit} alt="" className="habit-toggle__media" />
+      </span>
+      <span className="habit-toggle__label">{label}</span>
+      <span className="habit-toggle__state">{checked ? "Activo" : "Pendiente"}</span>
     </label>
   );
 }

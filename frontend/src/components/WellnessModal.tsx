@@ -1,5 +1,5 @@
 import HabitToggle from "./HabitToggle";
-import RatingSelector from "./RatingSelector";
+import RatingScale from "./RatingScale";
 import type { HabitKey, WellnessEntryUpsert } from "../types/wellness";
 
 const HABITS: Array<{ key: HabitKey; label: string }> = [
@@ -61,20 +61,24 @@ export default function WellnessModal({
 
         <div className="modal-body">
           <section className="modal-section">
-            <RatingSelector
+            <RatingScale
               label="Energía física"
               value={form.physical_energy}
               onChange={(value) => onUpdateScore("physical_energy", value)}
-              mode="pills"
+              interactive
+              name="physical-energy"
+              variant="energy"
             />
           </section>
 
           <section className="modal-section">
-            <RatingSelector
+            <RatingScale
               label="Estado emocional"
               value={form.emotional_state}
               onChange={(value) => onUpdateScore("emotional_state", value)}
-              mode="pills"
+              interactive
+              name="emotional-state"
+              variant="emotion"
             />
           </section>
 

@@ -5,7 +5,7 @@ type SyncStatusProps = {
 };
 
 const ICONS = {
-  idle: "😴",
+  idle: "💖",
   saving: "⏳",
   pending: "🕒",
   synced: "✓",
