@@ -234,8 +234,8 @@ select:focus-visible {
 }
 
 .summary-score__value {
-  width: 20px;
-  height: 20px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   border-radius: 999px;
@@ -257,7 +257,7 @@ select:focus-visible {
 
 .summary-score__value .rating-scale__number {
   color: white;
-  font-size: 0.66rem;
+  font-size: 0.9rem;
 }
 
 .summary-note {
@@ -344,6 +344,35 @@ select:focus-visible {
   width: 100%;
   max-width: 100%;
   min-width: 0;
+}
+
+.history-cards {
+  display: none;
+  gap: 12px;
+}
+
+.history-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: #fff;
+}
+
+.history-card__header strong {
+  font-size: 1rem;
+}
+
+.history-card__row {
+  display: grid;
+  gap: 6px;
+}
+
+.history-card__notes {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.5;
 }
 
 .history-table {
@@ -515,12 +544,12 @@ select:focus-visible {
   -webkit-appearance: none;
   border: 1.5px solid rgba(124, 111, 146, 0.35);
   padding: 0;
-  min-width: 20px;
-  min-height: 20px;
+  min-width: 34px;
+  min-height: 34px;
   line-height: 1;
   cursor: pointer;
-  width: 20px;
-  height: 20px;
+  width: 34px;
+  height: 34px;
   border-radius: 999px;
   background: #fff;
   display: grid;
@@ -528,6 +557,17 @@ select:focus-visible {
   position: relative;
   flex: 0 0 auto;
   min-width: 0;
+}
+
+.rating-scale--interactive .rating-scale__dot {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+}
+
+.rating-scale--interactive .rating-scale__number {
+  font-size: 0.92rem;
 }
 
 .rating-scale__dot.is-active,
@@ -538,7 +578,7 @@ select:focus-visible {
 .rating-scale__number {
   position: relative;
   z-index: 1;
-  font-size: 0.66rem;
+  font-size: 0.9rem;
   line-height: 1;
   color: var(--muted);
   font-weight: 700;
@@ -591,17 +631,38 @@ select:focus-visible {
 }
 
 .modal-header {
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+}
+
+.modal-header__content {
+  display: grid;
+  gap: 4px;
+}
+
+.modal-header__eyebrow {
+  margin: 0;
+  color: var(--primary);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.modal-header__subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 .modal-body {
   display: grid;
-  gap: 18px;
+  gap: 12px;
   min-width: 0;
 }
 
 .modal-section {
-  padding: 18px;
+  padding: 14px 16px;
   border: 1px solid #f2e9ff;
   border-radius: 22px;
   background: #fff;
@@ -609,7 +670,7 @@ select:focus-visible {
 }
 
 .modal-section h4 {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
 }
 
 .eyebrow {
@@ -628,27 +689,41 @@ select:focus-visible {
   background: #faf5ff;
   color: var(--text);
   border: 1px solid var(--border);
+  box-shadow: 0 8px 18px rgba(192, 132, 252, 0.08);
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  padding: 0;
+}
+
+.icon-button--close {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  background: #fff;
+  font-size: 1rem;
 }
 
 .field-label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-weight: 600;
 }
 
 .field-hint {
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   color: var(--muted);
   font-size: 0.92rem;
 }
 
 .notes-input {
   width: 100%;
-  min-height: 140px;
+  min-height: 92px;
   resize: vertical;
   border-radius: 18px;
   border: 1px solid var(--border);
-  padding: 14px;
+  padding: 12px 14px;
 }
 
 .rating-select,
@@ -667,7 +742,7 @@ select:focus-visible {
 
 .habit-grid {
   display: grid;
-  gap: 12px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -720,11 +795,11 @@ select:focus-visible {
 
 .habit-toggle {
   display: grid;
-  grid-template-columns: 40px 1fr auto;
+  grid-template-columns: 36px 1fr auto;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 20px;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 18px;
   border: 1px solid var(--border);
   background: #fff;
   cursor: pointer;
@@ -747,13 +822,13 @@ select:focus-visible {
 .habit-toggle__icon {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(233, 213, 255, 0.7);
   overflow: hidden;
-  padding: 5px;
+  padding: 4px;
 }
 
 .habit-toggle.is-active .habit-toggle__icon {
@@ -771,12 +846,26 @@ select:focus-visible {
 
 .habit-toggle__label {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .habit-toggle__state {
-  font-size: 0.8rem;
+  min-width: 42px;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #faf5ff;
+  border: 1px solid var(--border);
   color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.habit-toggle.is-active .habit-toggle__state {
+  background: linear-gradient(135deg, rgba(249, 168, 212, 0.22), rgba(192, 132, 252, 0.14));
+  color: var(--text);
+  border-color: rgba(192, 132, 252, 0.26);
 }
 
 .modal-actions {
@@ -976,12 +1065,12 @@ select:focus-visible {
   }
 
   .summary-score__value {
-    width: 18px;
-    height: 18px;
+    width: 28px;
+    height: 28px;
   }
 
   .summary-score__value .rating-scale__number {
-    font-size: 0.58rem;
+    font-size: 0.78rem;
   }
 
   .summary-note--updated {
@@ -1002,15 +1091,37 @@ select:focus-visible {
     justify-content: flex-start;
   }
 
+  .history-grid {
+    overflow-x: hidden;
+  }
+
+  .history-table {
+    display: none;
+    min-width: 0;
+  }
+
+  .history-cards {
+    display: grid;
+  }
+
+  .history-card {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .history-card__header strong {
+    font-size: 0.98rem;
+  }
+
   .rating-scale__dot {
-    width: 18px;
-    height: 18px;
-    min-width: 18px;
-    min-height: 18px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
   }
 
   .rating-scale__number {
-    font-size: 0.58rem;
+    font-size: 0.78rem;
   }
 
   .habit-toggle__icon {
@@ -1030,11 +1141,11 @@ select:focus-visible {
   }
 
   .modal-header {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
 
   .modal-body {
-    gap: 12px;
+    gap: 10px;
   }
 
   .modal-section {
@@ -1054,6 +1165,17 @@ select:focus-visible {
 
   .rating-scale__group {
     gap: 8px;
+  }
+
+  .rating-scale--interactive .rating-scale__dot {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .rating-scale--interactive .rating-scale__number {
+    font-size: 0.88rem;
   }
 
   .progress-chart__legend {

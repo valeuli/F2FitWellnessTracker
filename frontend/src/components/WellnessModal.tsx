@@ -50,11 +50,13 @@ export default function WellnessModal({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="modal-header">
-          <div>
-            <p className="eyebrow">{mode === "create" ? "Registro de hoy" : "Editar registro"}</p>
-            <h3 id="wellness-modal-title">Tu bienestar</h3>
+          <div className="modal-header__content">
+            <p className="modal-header__eyebrow">
+              {mode === "create" ? "Registrar bienestar de hoy" : "Editar bienestar de hoy"}
+            </p>
+            <p className="modal-header__subtitle">Actualiza cómo te sientes hoy.</p>
           </div>
-          <button className="icon-button" type="button" onClick={onClose} aria-label="Cerrar modal">
+          <button className="icon-button icon-button--close" type="button" onClick={onClose} aria-label="Cerrar modal">
             ✕
           </button>
         </div>

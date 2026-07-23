@@ -222,6 +222,12 @@ function HistoryTableCard({ history }: { history: WellnessEntry[] }) {
           ))}
         </tbody>
       </table>
+
+      <div className="history-cards">
+        {history.map((entry) => (
+          <HistoryEntryCard key={entry.id} entry={entry} />
+        ))}
+      </div>
     </section>
   );
 }

@@ -26,7 +26,9 @@ export default function HabitToggle({
         <HabitMedia habit={habit} alt="" className="habit-toggle__media" />
       </span>
       <span className="habit-toggle__label">{label}</span>
-      <span className="habit-toggle__state">{checked ? "Activo" : "Pendiente"}</span>
+      <span className="habit-toggle__state" aria-hidden="true">
+        {checked ? "ON" : "OFF"}
+      </span>
     </label>
   );
 }
